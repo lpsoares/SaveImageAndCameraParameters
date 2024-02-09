@@ -9,7 +9,7 @@ public class CameraCapture : MonoBehaviour
 {
     public int fileCounter;  // count each image generated 
     
-    public KeyCode screenshotKey;  // defines key to start capture process
+    public KeyCode screenshotKey = KeyCode.Space;  // defines key to start capture process
     
     public Vector3 origin;  // origin for rotation
 
@@ -18,6 +18,7 @@ public class CameraCapture : MonoBehaviour
 
     public float azimuth_step_divisions; // horizontal
     public float zenith_step_divisions; // vertical
+
 
     private Camera Camera {
         get {
@@ -31,6 +32,12 @@ public class CameraCapture : MonoBehaviour
     private Camera _camera;
 
     private void Start() {
+        System.IO.DirectoryInfo di = new DirectoryInfo(Application.dataPath + "/train");
+        // empty train directory
+        foreach (FileInfo file in di.GetFiles())
+        {
+            file.Delete(); 
+        }
         System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
         customCulture.NumberFormat.NumberDecimalSeparator = ".";
 
@@ -51,12 +58,9 @@ public class CameraCapture : MonoBehaviour
  
         //Write some text to the test.txt file
         StreamWriter writer = new StreamWriter(path, true);
-        writer.WriteLine("{");
-        writer.WriteLine("\t\"camera_angle_x\": " + (Math.PI / 180) * Camera.fieldOfView + ",");
-        writer.WriteLine("\t\"frames\": [");
-        
-
+        Debug.Log(zenith_step_divisions);
         for(int i = 0; i < zenith_step_divisions; i++) {
+            Debug.Log(i);
             
             for(int j = 0; j < azimuth_step_divisions; j++) {  // horizontal
 
@@ -64,6 +68,37 @@ public class CameraCapture : MonoBehaviour
                 //var position = new Vector3(matrix[0,3], matrix[1,3], matrix[2,3]);
                 //Debug.Log("Transform position from matrix is: " + matrix);
 
+
+                write_transform_json(i, matrix, writer, fileCounter, zenith_step_divisions);
+                Capture();
+
+                fileCounter++;
+                yield return wait; //Pause the loop for some second. 
+
+                transform.RotateAround(origin, Vector3.up, (360.0f / azimuth_step_divisions) );
+            }
+
+            transform.RotateAround(origin, transform.right, -(180.0f / zenith_step_divisions));
+
+        }
+
+        writer.WriteLine("\t]");
+        writer.WriteLine("}");
+        writer.Close();
+
+        //end
+        UnityEditor.EditorApplication.isPlaying = false;
+
+    }
+
+
+    private void write_transform_json(i, matrix, writer, fileCounter, zenith_step_divisions){
+                if (int == 0){
+                    writer.WriteLine("{");
+                    writer.WriteLine("\t\"camera_angle_x\": " + (Math.PI / 180) * Camera.fieldOfView + ",");
+                    writer.WriteLine("\t\"frames\": [");
+                }
+                
                 writer.WriteLine("\t\t{");
                 writer.WriteLine("\t\t\t\"file_path\": \"./train/i_" + fileCounter + "\",");
                 writer.WriteLine("\t\t\t\"rotation\": 0.012566370614359171,");
@@ -99,23 +134,6 @@ public class CameraCapture : MonoBehaviour
 
                 writer.WriteLine("\t\t]");
                 writer.WriteLine("\t\t}" + (i != zenith_step_divisions-1 ? "," : "") );
-
-                Capture();
-
-                fileCounter++;
-                yield return wait; //Pause the loop for some second. 
-
-                transform.RotateAround(origin, Vector3.up, (360.0f / azimuth_step_divisions) );
-            }
-
-            transform.RotateAround(origin, transform.right, -(180.0f / zenith_step_divisions));
-
-        }
-
-        writer.WriteLine("\t]");
-        writer.WriteLine("}");
-        writer.Close();
-
     }
     
  
