@@ -53,23 +53,28 @@ public class CameraCapture : MonoBehaviour
         WaitForSeconds wait = new WaitForSeconds(0.2f); // Wait function
  
         string path = "Assets/transforms_train.json";
- 
+        string ImagesTxtPath = "Assets/images_train.txt";
         //fieldOfView = 0.6911112070083618
  
         //Write some text to the test.txt file
         StreamWriter writer = new StreamWriter(path, true);
+        StreamWriter ImageTxtWriter = new StreamWriter(ImagesTxtPath,true);
+
         Debug.Log(zenith_step_divisions);
         for(int i = 0; i < zenith_step_divisions; i++) {
             Debug.Log(i);
             
             for(int j = 0; j < azimuth_step_divisions; j++) {  // horizontal
-
+                string name  = "./train/i_" + fileCounter; 
                 var matrix = transform.localToWorldMatrix;
-                //var position = new Vector3(matrix[0,3], matrix[1,3], matrix[2,3]);
+                var worldRotation = transform.rotation;
+                var position = new Vector3(matrix[0,3], matrix[1,3], matrix[2,3]);
+                var ID = i*10 + j;
+                var cameraID = 1;
                 //Debug.Log("Transform position from matrix is: " + matrix);
 
-
-                write_transform_json(i, matrix, writer, fileCounter, zenith_step_divisions);
+                WriteImagesTxt(ID, name, worldRotation, position, cameraID, ImageTxtWriter);
+                WriteTransformJson(i, matrix, writer, fileCounter, zenith_step_divisions,name);
                 Capture();
 
                 fileCounter++;
@@ -85,22 +90,22 @@ public class CameraCapture : MonoBehaviour
         writer.WriteLine("\t]");
         writer.WriteLine("}");
         writer.Close();
-
+        ImageTxtWriter.Close();
         //end
         UnityEditor.EditorApplication.isPlaying = false;
 
     }
 
 
-    private void write_transform_json(i, matrix, writer, fileCounter, zenith_step_divisions){
-                if (int == 0){
+    private void WriteTransformJson(int i, Matrix4x4 matrix, StreamWriter writer, int fileCounter, float zenith_step_divisions, string name) {
+                if (i == 0){
                     writer.WriteLine("{");
                     writer.WriteLine("\t\"camera_angle_x\": " + (Math.PI / 180) * Camera.fieldOfView + ",");
                     writer.WriteLine("\t\"frames\": [");
                 }
                 
                 writer.WriteLine("\t\t{");
-                writer.WriteLine("\t\t\t\"file_path\": \"./train/i_" + fileCounter + "\",");
+                writer.WriteLine("\t\t\t\"file_path\": \""+name + "\",");
                 writer.WriteLine("\t\t\t\"rotation\": 0.012566370614359171,");
                 writer.WriteLine("\t\t\t\"transform_matrix\": [");
                 
@@ -134,6 +139,24 @@ public class CameraCapture : MonoBehaviour
 
                 writer.WriteLine("\t\t]");
                 writer.WriteLine("\t\t}" + (i != zenith_step_divisions-1 ? "," : "") );
+    }
+
+    private void WriteImagesTxt(int ID, string NAME, Quaternion Q, Vector3 T, int CAMERA_ID, StreamWriter writer){ //assuming second line is optional we don't need , NAME, POINTS2D[] as (X, Y, POINT3D_ID)
+        float QW = Q.w;
+        float QX = Q.x;
+        float QY = Q.y;
+        float QZ = Q.z;
+        
+        float TX = T.x;
+        float TY = T.y;
+        float TZ = T.z;
+
+        writer.WriteLine($"{ID} {QW} {QX} {QY} {QZ} {TX} {TY} {TZ} {CAMERA_ID} {NAME}");
+        // writer.WriteLine("2362.39 248.498 58396 1784.7 268.254 59027 1784.7 268.254 -1");
+    }
+
+    private void WriteCamerasTxt(){
+        
     }
     
  
@@ -200,3 +223,22 @@ public class CameraCapture : MonoBehaviour
 //         },
 //     ]
 // }
+
+
+// # Camera list with one line of data per camera:
+// #   CAMERA_ID, MODEL, WIDTH, HEIGHT, PARAMS[]
+// # Number of cameras: 3
+// 1 SIMPLE_PINHOLE 3072 2304 2559.81 1536 1152
+// 2 PINHOLE 3072 2304 2560.56 2560.56 1536 1152
+// 3 SIMPLE_RADIAL 3072 2304 2559.69 1536 1152 -0.0218531
+
+
+
+// # Image list with two lines of data per image:
+// #   IMAGE_ID, QW, QX, QY, QZ, TX, TY, TZ, CAMERA_ID, NAME
+// #   POINTS2D[] as (X, Y, POINT3D_ID)
+// # Number of images: 2, mean observations per image: 2
+// 1 0.851773 0.0165051 0.503764 -0.142941 -0.737434 1.02973 3.74354 1 P1180141.JPG
+// 2362.39 248.498 58396 1784.7 268.254 59027 1784.7 268.254 -1
+// 2 0.851773 0.0165051 0.503764 -0.142941 -0.737434 1.02973 3.74354 1 P1180142.JPG
+// 1190.83 663.957 23056 1258.77 640.354 59070
