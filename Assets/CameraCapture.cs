@@ -25,6 +25,8 @@ public class CameraCapture : MonoBehaviour
             if (!_camera) {
                 _camera = Camera.main;
             }
+            Debug.Log("in camera");
+            Debug.Log(_camera);
             return _camera;
         }
     }
@@ -46,6 +48,8 @@ public class CameraCapture : MonoBehaviour
         transform.RotateAround(origin, transform.right, 90); // start on the top
         //transform.RotateAround(origin, transform.right, 90-zenith_start_angle);
         transform.RotateAround(origin, Vector3.up, azimuth_start_angle);
+        Debug.Log("in main");
+        Debug.Log(_camera);
     }
  
     IEnumerator SomeCoroutine() {

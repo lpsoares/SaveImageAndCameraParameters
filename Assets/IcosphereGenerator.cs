@@ -2,32 +2,9 @@ using UnityEngine;
 
 public class IcosphereGenerator : MonoBehaviour
 {
-    public int subdivisions = 3;
-    public float radius = 1f;
 
-    void Start()
-    {
-        MeshFilter filter = GetComponent<MeshFilter>();
-        Mesh mesh = filter.mesh;
-        mesh.Clear();
 
-        mesh = Create(subdivisions, radius);
-        foreach (Vector3 vertex in mesh.vertices)
-            {
-                //create raycast
-                Ray ray = new Ray(vertex, Vector3.Normalize(vertex));
-                RaycastHit hit;
-                if (Physics.Raycast(ray, out hit))
-                {
-                    //create a sphere at the hit point
-                    GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    sphere.transform.position = hit.point;
-                    sphere.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-                }
-            }
-    }
-
-    Mesh Create(int n, float radius)
+    public Mesh Create(int n, float radius)
     {
         int nn = n * 4;
         int vertexNum = (nn * nn / 16) * 24;
