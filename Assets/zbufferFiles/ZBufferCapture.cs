@@ -6,7 +6,7 @@ using System.IO;
 
 public class ZBufferCapture : MonoBehaviour
 {
-    public int subdivisions = 20;
+    public int subdivisions = 3;
     public float radius = 1000f;
 
     private int fileCounter = 0;
@@ -19,9 +19,17 @@ public class ZBufferCapture : MonoBehaviour
 
     public Camera _camera;
 
+    private string basePath;
+
     void Start()
     {
-
+        basePath=  Application.dataPath + "/zbufferFiles/trainTest";
+        //delete all files under basepath
+        System.IO.DirectoryInfo di = new DirectoryInfo(basePath);
+        foreach (FileInfo file in di.GetFiles())
+        {
+            file.Delete();
+        }
         //create icosphere
         MeshFilter filter = GetComponent<MeshFilter>();
         Mesh mesh = filter.mesh;
@@ -80,7 +88,7 @@ public class ZBufferCapture : MonoBehaviour
         mCamera.targetTexture = null;
         RenderTexture.active = null;
         byte[] bytes = screenShot.EncodeToPNG();
-        File.WriteAllBytes(Application.dataPath + "/trainTest/i_" + fileCounter + ".png", bytes);
+        File.WriteAllBytes(basePath+"/i_"+fileCounter + ".png", bytes);
         Destroy(screenShot);
 
     }
