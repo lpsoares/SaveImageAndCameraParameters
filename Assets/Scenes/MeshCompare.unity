@@ -261,12 +261,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad4faaef1bc3ef24db49f942accdf3a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  subdivisions: 2
-  radius: 10
-  screenshotKey: 32
-  icosphereGenerator: {fileID: 0}
-  _camera: {fileID: 1237528992}
-  depthShader: {fileID: 4800000, guid: dd4b1aba3b7035044a2defd2d429f9ca, type: 3}
 --- !u!114 &1549564289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,11 +400,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4361374554138886284, guid: 9fedecbd1aa68924b816f15cb97e611a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.659
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4361374554138886284, guid: 9fedecbd1aa68924b816f15cb97e611a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.77
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4361374554138886284, guid: 9fedecbd1aa68924b816f15cb97e611a, type: 3}
       propertyPath: m_LocalRotation.w

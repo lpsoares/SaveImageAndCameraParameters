@@ -2,7 +2,8 @@ using System.Collections;
 using UnityEngine;
 using System.IO;
     
-public class DepthRenderTexture : MonoBehaviour
+[RequireComponent(typeof(Camera))]
+public class RenderImages : MonoBehaviour
 {
     public RenderTexture RTDepth;
     public RenderTexture RTResult;
@@ -22,7 +23,7 @@ public class DepthRenderTexture : MonoBehaviour
 
     public string folderPath;
 
-    public bool depth = false;
+    public bool normal = false;
 
     void Start()
     {
@@ -38,6 +39,7 @@ public class DepthRenderTexture : MonoBehaviour
         Mesh mesh = filter.mesh;
         // getting icosphere generator script
         icosphereGenerator = GetComponent<IcosphereGenerator>();
+        Debug.Log(icosphereGenerator);
         mesh.Clear();
         sphereMesh = icosphereGenerator.Create(subdivisions, radius);
 
@@ -56,12 +58,12 @@ public class DepthRenderTexture : MonoBehaviour
                 //debug the main camera forward vector
                 _camera.transform.position = vertex;
                 _camera.transform.LookAt(vertex + inward);
-                // Debug.Log(_camera.transform.position);
+                Debug.Log(_camera.transform.position);
                 string filePath = basePath+"/i_"+fileCounter + ".png";
-                if (depth){
-                    CaptureDepth(filePath);
+                if (normal){
+                    CaptureNormal(filePath);
                 }else{
-                    CaptureImage(filePath);}
+                    CaptureDepth(filePath);}
                 yield return wait; //Pause the loop for some second. 
                 fileCounter++;
 
@@ -71,26 +73,23 @@ public class DepthRenderTexture : MonoBehaviour
 
     }
 
-    public void CaptureImage(string filePath) {
-        if (_camera.targetTexture == null) {
-            _camera.targetTexture = new RenderTexture(2048, 1024, 24); // Adjust size and depth as needed
-        }
-        Debug.Log(_camera.targetTexture); // Now this should not be null
+    public void CaptureNormal(string filePath) {
         RenderTexture activeRenderTexture = RenderTexture.active;
         RenderTexture.active = _camera.targetTexture;
-
+ 
         _camera.Render();
+        
         Texture2D image = new Texture2D(_camera.targetTexture.width, _camera.targetTexture.height);
         image.ReadPixels(new Rect(0, 0, _camera.targetTexture.width, _camera.targetTexture.height), 0, 0);
         image.Apply();
         RenderTexture.active = activeRenderTexture;
-
+ 
         byte[] bytes = image.EncodeToPNG();
         Destroy(image);
-
+ 
         System.IO.File.WriteAllBytes(filePath, bytes);
+        
     }
-
 
     void CaptureDepth(string filePath){
         if (RTResult)
